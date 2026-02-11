@@ -255,22 +255,13 @@ See [MODULAR_ARCHITECTURE.md](./MODULAR_ARCHITECTURE.md) for details.
 
 ## 📚 Documentation (11 files, 3,500+ lines)
 
-**For Assessors (Start Here):**
-1. **[ASSESSMENT_SUMMARY.md](ASSESSMENT_SUMMARY.md)** ⭐⭐⭐ - Executive overview
-2. **[ASSESSMENT_VERIFICATION.md](ASSESSMENT_VERIFICATION.md)** ⭐⭐⭐ - Detailed evidence
-3. **[ASSESSMENT_EVIDENCE.md](ASSESSMENT_EVIDENCE.md)** ⭐⭐ - Quick file references
-4. **[DESIGN_PHILOSOPHY.md](DESIGN_PHILOSOPHY.md)** ⭐⭐ - Architecture trade-offs & thinking
-5. **[OPTIONAL_FEATURES.md](OPTIONAL_FEATURES.md)** ⭐ - What we built & why
-
 **For Getting Started:**
-6. **[START_HERE.md](START_HERE.md)** - Quick start guide
-7. **[OVERVIEW.md](OVERVIEW.md)** - System overview
-8. **[README.md](README.md)** - This file (complete API docs)
+1. **[START_HERE.md](START_HERE.md)** - Quick start guide
+2. **[OVERVIEW.md](OVERVIEW.md)** - System overview
+3. **[README.md](README.md)** - This file (complete API docs)
 
 **For API Testing:**
-9. **[API_EXAMPLES.md](API_EXAMPLES.md)** - Copy-paste curl commands
-10. **[FINAL_CHECKLIST.md](FINAL_CHECKLIST.md)** - Requirements checklist
-11. **[CHANGELOG.md](CHANGELOG.md)** - Development history
+4. **[API_EXAMPLES.md](API_EXAMPLES.md)** - Copy-paste curl commands
 
 ## License
 
