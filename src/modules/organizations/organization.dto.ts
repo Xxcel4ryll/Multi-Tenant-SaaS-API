@@ -1,7 +1,3 @@
-/**
- * Organization Data Transfer Objects (DTOs)
- */
-
 import { UserRole } from '../../types';
 
 export class CreateOrganizationDto {

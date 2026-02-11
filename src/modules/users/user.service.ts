@@ -6,16 +6,13 @@ import userRepository from './user.repository';
 
 export class UserService {
   async register(data: { email: string; password: string; first_name: string; last_name: string }) {
-    // Check if user exists
     const existingUser = await userRepository.findByEmail(data.email);
     if (existingUser) {
       throw new AppError('Email already registered', StatusCodes.CONFLICT);
     }
 
-    // Hash password
     const password_hash = await hashPassword(data.password);
 
-    // Create user
     const user = await userRepository.create({
       email: data.email,
       password_hash,
@@ -23,7 +20,6 @@ export class UserService {
       last_name: data.last_name,
     });
 
-    // Generate tokens
     const token = generateToken({ userId: user.id, email: user.email });
     const refreshToken = generateRefreshToken({ userId: user.id, email: user.email });
 
@@ -40,19 +36,16 @@ export class UserService {
   }
 
   async login(email: string, password: string) {
-    // Find user
     const user = await userRepository.findByEmail(email);
     if (!user) {
       throw new AppError('Invalid credentials', StatusCodes.UNAUTHORIZED);
     }
 
-    // Verify password
     const isValidPassword = await comparePassword(password, user.password_hash);
     if (!isValidPassword) {
       throw new AppError('Invalid credentials', StatusCodes.UNAUTHORIZED);
     }
 
-    // Generate tokens
     const token = generateToken({ userId: user.id, email: user.email });
     const refreshToken = generateRefreshToken({ userId: user.id, email: user.email });
 

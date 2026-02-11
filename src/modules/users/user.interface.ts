@@ -1,8 +1,3 @@
-/**
- * User Interfaces
- * These define TypeScript types for internal use
- */
-
 export interface IUser {
   id: string;
   email: string;

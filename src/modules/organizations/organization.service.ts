@@ -7,13 +7,11 @@ import userRepository from '../users/user.repository';
 
 export class OrganizationService {
   async create(data: { name: string; slug: string }, userId: string) {
-    // Check if slug exists
     const existing = await organizationRepository.findBySlug(data.slug);
     if (existing) {
       throw new AppError('Organization slug already exists', StatusCodes.CONFLICT);
     }
 
-    // Use transaction to create org and add user as owner
     const transaction: Transaction = await sequelize.transaction();
 
     try {
@@ -47,7 +45,6 @@ export class OrganizationService {
       throw new AppError('Organization not found', StatusCodes.NOT_FOUND);
     }
 
-    // Check if user is a member
     const isMember = await organizationRepository.isMember(organizationId, userId);
     if (!isMember) {
       throw new AppError('Organization not found', StatusCodes.NOT_FOUND);
@@ -66,13 +63,11 @@ export class OrganizationService {
   }
 
   async addMember(organizationId: string, userId: string, role: UserRole = 'member') {
-    // Check if user exists
     const user = await userRepository.findById(userId);
     if (!user) {
       throw new AppError('User not found', StatusCodes.NOT_FOUND);
     }
 
-    // Check if already a member
     const isMember = await organizationRepository.isMember(organizationId, userId);
     if (isMember) {
       throw new AppError('User is already a member of this organization', StatusCodes.CONFLICT);

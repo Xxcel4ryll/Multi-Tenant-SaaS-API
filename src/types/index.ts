@@ -27,7 +27,6 @@ export class AppError extends Error {
   }
 }
 
-// User types
 export type UserRole = 'owner' | 'admin' | 'member';
 
 export interface User {
@@ -85,13 +84,11 @@ export interface Project {
   updated_at: Date;
 }
 
-// JWT Payload
 export interface JwtPayload {
   userId: string;
   email: string;
 }
 
-// Extended Request with auth user
 export interface AuthRequest extends Request {
   user?: {
     userId: string;

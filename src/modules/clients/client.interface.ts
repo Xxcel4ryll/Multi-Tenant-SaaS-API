@@ -1,7 +1,3 @@
-/**
- * Client Interfaces
- */
-
 export interface IClient {
   id: string;
   organization_id: string;

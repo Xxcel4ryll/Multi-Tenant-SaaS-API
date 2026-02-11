@@ -1,9 +1,6 @@
 import Joi from 'joi';
 
 export const userValidation = {
-  /**
-   * Validation for user registration
-   */
   register: Joi.object({
     email: Joi.string().email().required().lowercase().trim().messages({
       'string.email': 'Please provide a valid email address',
@@ -32,10 +29,6 @@ export const userValidation = {
       'any.required': 'Last name is required',
     }),
   }),
-
-  /**
-   * Validation for user login
-   */
   login: Joi.object({
     email: Joi.string().email().required().lowercase().trim().messages({
       'string.email': 'Please provide a valid email address',
@@ -45,10 +38,6 @@ export const userValidation = {
       'any.required': 'Password is required',
     }),
   }),
-
-  /**
-   * Validation for updating user profile
-   */
   update: Joi.object({
     first_name: Joi.string().min(1).max(50).trim().messages({
       'string.min': 'First name cannot be empty',

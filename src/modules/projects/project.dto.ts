@@ -1,7 +1,3 @@
-/**
- * Project Data Transfer Objects (DTOs)
- */
-
 import { ProjectStatus } from '../../types';
 
 export class CreateProjectDto {

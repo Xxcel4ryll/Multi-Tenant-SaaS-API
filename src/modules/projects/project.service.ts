@@ -19,7 +19,6 @@ export class ProjectService {
     end_date?: Date;
     created_by: string;
   }) {
-    // If client_id provided, verify it belongs to organization
     if (data.client_id) {
       const client = await clientRepository.findById(data.client_id, data.organization_id);
       if (!client) {
@@ -70,7 +69,6 @@ export class ProjectService {
       end_date?: Date;
     }
   ) {
-    // If client_id provided, verify it belongs to organization
     if (data.client_id) {
       const client = await clientRepository.findById(data.client_id, organizationId);
       if (!client) {

@@ -1,9 +1,6 @@
 import Joi from 'joi';
 
 export const projectValidation = {
-  /**
-   * Validation for creating a project
-   */
   create: Joi.object({
     name: Joi.string().min(1).max(200).required().trim().messages({
       'string.min': 'Project name cannot be empty',
@@ -30,10 +27,6 @@ export const projectValidation = {
       'date.greater': 'End date must be after start date',
     }),
   }),
-
-  /**
-   * Validation for updating a project
-   */
   update: Joi.object({
     name: Joi.string().min(1).max(200).trim().messages({
       'string.min': 'Project name cannot be empty',
@@ -57,7 +50,6 @@ export const projectValidation = {
   })
     .min(1)
     .custom((value, helpers) => {
-      // Custom validation: end_date must be after start_date if both are provided
       if (value.start_date && value.end_date) {
         const start = new Date(value.start_date);
         const end = new Date(value.end_date);
@@ -68,19 +60,12 @@ export const projectValidation = {
       return value;
     }),
 
-  /**
-   * Validation for project ID parameter
-   */
   projectId: Joi.object({
     id: Joi.string().uuid().required().messages({
       'string.guid': 'Project ID must be a valid UUID',
       'any.required': 'Project ID is required',
     }),
   }),
-
-  /**
-   * Validation for query parameters (pagination + filters)
-   */
   query: Joi.object({
     page: Joi.number().integer().min(1).messages({
       'number.base': 'Page must be a number',

@@ -8,8 +8,6 @@ import config from './config';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { rateLimiter } from './middleware/rateLimiter';
 import logger from './utils/logger';
-
-// Import controllers
 import healthController from './modules/health/health.controller';
 import userController from './modules/users/user.controller';
 import organizationController from './modules/organizations/organization.controller';
@@ -18,7 +16,6 @@ import projectController from './modules/projects/project.controller';
 
 const app: Application = express();
 
-// Security middleware
 app.use(helmet());
 app.use(
   cors({
@@ -27,17 +24,13 @@ app.use(
   })
 );
 
-// Rate limiting
 app.use(rateLimiter);
 
-// Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Compression middleware
 app.use(compression());
 
-// HTTP request logger
 const morganFormat = config.node_env === 'development' ? 'dev' : 'combined';
 app.use(
   morgan(morganFormat, {
@@ -47,19 +40,15 @@ app.use(
   })
 );
 
-// Health check routes (no prefix)
 app.use('/', healthController);
 
-// API routes
 app.use(`${config.api_prefix}/auth`, userController);
 app.use(`${config.api_prefix}/organizations`, organizationController);
 app.use(`${config.api_prefix}/clients`, clientController);
 app.use(`${config.api_prefix}/projects`, projectController);
 
-// 404 handler
 app.use(notFoundHandler);
 
-// Error handler (must be last)
 app.use(errorHandler);
 
 export default app;

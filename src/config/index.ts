@@ -1,7 +1,6 @@
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Load environment variables
 dotenv.config({ path: path.join(__dirname, '../../.env') });
 
 interface Config {
@@ -60,7 +59,6 @@ const config: Config = {
   },
 };
 
-// Validate required config
 if (config.node_env === 'production' && config.jwt.secret === 'change-this-secret') {
   throw new Error('JWT_SECRET must be set in production');
 }

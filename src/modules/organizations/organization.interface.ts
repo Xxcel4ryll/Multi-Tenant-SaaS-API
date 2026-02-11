@@ -1,7 +1,3 @@
-/**
- * Organization Interfaces
- */
-
 import { UserRole } from '../../types';
 
 export interface IOrganization {

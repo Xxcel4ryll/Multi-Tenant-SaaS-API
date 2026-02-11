@@ -1,7 +1,3 @@
-/**
- * Client Data Transfer Objects (DTOs)
- */
-
 export class CreateClientDto {
   name!: string;
   email?: string;

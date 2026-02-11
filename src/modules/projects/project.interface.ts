@@ -1,7 +1,3 @@
-/**
- * Project Interfaces
- */
-
 import { ProjectStatus } from '../../types';
 
 export interface IProject {

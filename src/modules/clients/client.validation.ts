@@ -1,9 +1,6 @@
 import Joi from 'joi';
 
 export const clientValidation = {
-  /**
-   * Validation for creating a client
-   */
   create: Joi.object({
     name: Joi.string().min(1).max(100).required().trim().messages({
       'string.min': 'Client name cannot be empty',
@@ -29,10 +26,6 @@ export const clientValidation = {
       'string.max': 'Notes cannot exceed 1000 characters',
     }),
   }),
-
-  /**
-   * Validation for updating a client
-   */
   update: Joi.object({
     name: Joi.string().min(1).max(100).trim().messages({
       'string.min': 'Client name cannot be empty',
@@ -57,20 +50,12 @@ export const clientValidation = {
       'string.max': 'Notes cannot exceed 1000 characters',
     }),
   }).min(1),
-
-  /**
-   * Validation for client ID parameter
-   */
   clientId: Joi.object({
     id: Joi.string().uuid().required().messages({
       'string.guid': 'Client ID must be a valid UUID',
       'any.required': 'Client ID is required',
     }),
   }),
-
-  /**
-   * Validation for pagination and filtering
-   */
   query: Joi.object({
     page: Joi.number().integer().min(1).messages({
       'number.base': 'Page must be a number',
