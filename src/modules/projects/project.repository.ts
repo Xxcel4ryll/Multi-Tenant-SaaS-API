@@ -47,7 +47,7 @@ export class ProjectRepository {
       limit: options?.limit,
       offset: options?.offset,
       order: [['created_at', 'DESC']],
-      distinct: true, // For accurate count with joins
+      distinct: true,
     });
   }
 

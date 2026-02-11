@@ -50,5 +50,5 @@ export const userValidation = {
     email: Joi.string().email().lowercase().trim().messages({
       'string.email': 'Please provide a valid email address',
     }),
-  }).min(1), // At least one field must be provided
+  }).min(1),
 };

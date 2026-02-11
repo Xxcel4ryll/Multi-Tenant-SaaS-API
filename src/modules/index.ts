@@ -4,9 +4,7 @@ import OrganizationUser from './organizations/organization-user.model';
 import Client from './clients/client.model';
 import Project from './projects/project.model';
 
-// Define all model associations
 export const initializeAssociations = (): void => {
-  // User <-> Organization (through OrganizationUser)
   User.belongsToMany(Organization, {
     through: OrganizationUser,
     foreignKey: 'user_id',
@@ -21,7 +19,6 @@ export const initializeAssociations = (): void => {
     as: 'users',
   });
 
-  // OrganizationUser associations
   OrganizationUser.belongsTo(User, {
     foreignKey: 'user_id',
     as: 'user',
@@ -37,7 +34,6 @@ export const initializeAssociations = (): void => {
     as: 'organization_users',
   });
 
-  // Organization -> Clients
   Organization.hasMany(Client, {
     foreignKey: 'organization_id',
     as: 'clients',
@@ -48,7 +44,6 @@ export const initializeAssociations = (): void => {
     as: 'organization',
   });
 
-  // Organization -> Projects
   Organization.hasMany(Project, {
     foreignKey: 'organization_id',
     as: 'projects',
@@ -59,7 +54,6 @@ export const initializeAssociations = (): void => {
     as: 'organization',
   });
 
-  // Client -> Projects
   Client.hasMany(Project, {
     foreignKey: 'client_id',
     as: 'projects',
@@ -70,7 +64,6 @@ export const initializeAssociations = (): void => {
     as: 'client',
   });
 
-  // User -> Created Clients
   User.hasMany(Client, {
     foreignKey: 'created_by',
     as: 'created_clients',
@@ -81,7 +74,6 @@ export const initializeAssociations = (): void => {
     as: 'creator',
   });
 
-  // User -> Created Projects
   User.hasMany(Project, {
     foreignKey: 'created_by',
     as: 'created_projects',
