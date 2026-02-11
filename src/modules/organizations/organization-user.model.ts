@@ -20,12 +20,12 @@ class OrganizationUser
   extends Model<OrganizationUserAttributes, OrganizationUserCreationAttributes>
   implements OrganizationUserAttributes
 {
-  public id!: string;
-  public organization_id!: string;
-  public user_id!: string;
-  public role!: UserRole;
-  public readonly created_at!: Date;
-  public readonly updated_at!: Date;
+  declare id: string;
+  declare organization_id: string;
+  declare user_id: string;
+  declare role: UserRole;
+  declare readonly created_at: Date;
+  declare readonly updated_at: Date;
 }
 
 OrganizationUser.init(

@@ -18,11 +18,11 @@ class Organization
   extends Model<OrganizationAttributes, OrganizationCreationAttributes>
   implements OrganizationAttributes
 {
-  public id!: string;
-  public name!: string;
-  public slug!: string;
-  public readonly created_at!: Date;
-  public readonly updated_at!: Date;
+  declare id: string;
+  declare name: string;
+  declare slug: string;
+  declare readonly created_at: Date;
+  declare readonly updated_at: Date;
 }
 
 Organization.init(

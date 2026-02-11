@@ -20,16 +20,16 @@ export interface ClientCreationAttributes extends Optional<
 > {}
 
 class Client extends Model<ClientAttributes, ClientCreationAttributes> implements ClientAttributes {
-  public id!: string;
-  public organization_id!: string;
-  public name!: string;
+  declare id: string;
+  declare organization_id: string;
+  declare name: string;
   public email?: string;
   public phone?: string;
   public company?: string;
   public notes?: string;
   public created_by?: string;
-  public readonly created_at!: Date;
-  public readonly updated_at!: Date;
+  declare readonly created_at: Date;
+  declare readonly updated_at: Date;
 }
 
 Client.init(

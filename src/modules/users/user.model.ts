@@ -17,13 +17,13 @@ export interface UserCreationAttributes extends Optional<
 > {}
 
 class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
-  public id!: string;
-  public email!: string;
-  public password_hash!: string;
-  public first_name!: string;
-  public last_name!: string;
-  public readonly created_at!: Date;
-  public readonly updated_at!: Date;
+  declare id: string;
+  declare email: string;
+  declare password_hash: string;
+  declare first_name: string;
+  declare last_name: string;
+  declare readonly created_at: Date;
+  declare readonly updated_at: Date;
 }
 
 User.init(

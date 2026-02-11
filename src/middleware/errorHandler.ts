@@ -3,7 +3,6 @@ import { StatusCodes } from 'http-status-codes';
 import { ValidationError, UniqueConstraintError, ForeignKeyConstraintError } from 'sequelize';
 import logger from '../utils/logger';
 import { AppError } from '../types';
-import config from '../config';
 
 export const errorHandler = (
   err: Error | AppError,
@@ -47,20 +46,12 @@ export const errorHandler = (
     stack: err.stack,
   });
 
-  const response: {
-    success: boolean;
-    message: string;
-    stack?: string;
-  } = {
+  res.status(statusCode).json({
     success: false,
     message,
-  };
-
-  if (config.node_env === 'development' && err.stack) {
-    response.stack = err.stack;
-  }
-
-  res.status(statusCode).json(response);
+    timestamp: new Date().toISOString(),
+    path: req.originalUrl,
+  });
 };
 
 export const notFoundHandler = (req: Request, res: Response): void => {
@@ -68,5 +59,7 @@ export const notFoundHandler = (req: Request, res: Response): void => {
   res.status(StatusCodes.NOT_FOUND).json({
     success: false,
     message: 'Resource not found',
+    timestamp: new Date().toISOString(),
+    path: req.originalUrl,
   });
 };

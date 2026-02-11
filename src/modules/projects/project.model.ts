@@ -33,17 +33,17 @@ class Project
   extends Model<ProjectAttributes, ProjectCreationAttributes>
   implements ProjectAttributes
 {
-  public id!: string;
-  public organization_id!: string;
+  declare id: string;
+  declare organization_id: string;
   public client_id?: string;
-  public name!: string;
+  declare name: string;
   public description?: string;
-  public status!: ProjectStatus;
+  declare status: ProjectStatus;
   public start_date?: Date;
   public end_date?: Date;
   public created_by?: string;
-  public readonly created_at!: Date;
-  public readonly updated_at!: Date;
+  declare readonly created_at: Date;
+  declare readonly updated_at: Date;
 }
 
 Project.init(

@@ -20,15 +20,16 @@ export class UserService {
       last_name: data.last_name,
     });
 
-    const token = generateToken({ userId: user.id, email: user.email });
-    const refreshToken = generateRefreshToken({ userId: user.id, email: user.email });
+    const userData = user.toJSON();
+    const token = generateToken({ userId: userData.id, email: userData.email });
+    const refreshToken = generateRefreshToken({ userId: userData.id, email: userData.email });
 
     return {
       user: {
-        id: user.id,
-        email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
+        id: userData.id,
+        email: userData.email,
+        first_name: userData.first_name,
+        last_name: userData.last_name,
       },
       token,
       refreshToken,
@@ -41,20 +42,25 @@ export class UserService {
       throw new AppError('Invalid credentials', StatusCodes.UNAUTHORIZED);
     }
 
+    if (!password || !user.password_hash) {
+      throw new AppError('Invalid credentials', StatusCodes.UNAUTHORIZED);
+    }
+
     const isValidPassword = await comparePassword(password, user.password_hash);
     if (!isValidPassword) {
       throw new AppError('Invalid credentials', StatusCodes.UNAUTHORIZED);
     }
 
-    const token = generateToken({ userId: user.id, email: user.email });
-    const refreshToken = generateRefreshToken({ userId: user.id, email: user.email });
+    const userData = user.toJSON();
+    const token = generateToken({ userId: userData.id, email: userData.email });
+    const refreshToken = generateRefreshToken({ userId: userData.id, email: userData.email });
 
     return {
       user: {
-        id: user.id,
-        email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
+        id: userData.id,
+        email: userData.email,
+        first_name: userData.first_name,
+        last_name: userData.last_name,
       },
       token,
       refreshToken,
