@@ -1,205 +1,176 @@
 # Multi-Tenant Project Management API
 
-> **🎯 ASSESSMENT PROJECT - 100% COMPLIANCE**
-
-Production-ready REST API with **Node.js**, **TypeScript**, **Express**, **PostgreSQL**, and **Sequelize ORM**. Features multi-tenancy, JWT authentication, and role-based access control.
-
-**Assessment Evidence:** [ASSESSMENT_VERIFICATION.md](ASSESSMENT_VERIFICATION.md) (detailed) | [ASSESSMENT_SUMMARY.md](ASSESSMENT_SUMMARY.md) (executive)
+REST API built with Node.js, TypeScript, Express, and PostgreSQL. Implements multi-tenant architecture with role-based access control.
 
 ## Features
 
-- **Multi-Tenancy** - Organizations with `organization_id` data isolation
-- **Sequelize ORM** - Type-safe queries with migrations
-- **Modular Architecture** - 7-layer pattern (Model, DTO, Interface, Validation, Repository, Service, Controller)
-- **JWT + RBAC** - 3-layer authorization (JWT + org membership + role checks)
-- **Data Integrity** - Foreign keys, unique constraints, transactions, referential integrity
-- **Performance** - Pagination, indexes, eager loading (N+1 prevention)
-- **Security** - Joi validation, privilege protection, safe error messages, no detail leaks
-- **TypeScript** - Zero errors, strict type safety
+- Multi-tenant data isolation with `organization_id`
+- Sequelize ORM with migrations
+- JWT authentication + RBAC (Owner/Admin/Member roles)
+- Foreign keys, unique constraints, transactions
+- Pagination and database indexes
+- Input validation with Joi
+- Rate limiting
 
-## Quick Start
+## Setup
 
 ```bash
-make setup      # One command: install + db + migrate + seed
-make dev        # Start development server
+make setup
+make dev
 ```
-
-**That's it!** Two commands and you're running.
-
-Run `make` to see all 25+ available commands.
 
 API runs at `http://localhost:3000/api/v1`
 
-## Project Structure
+## Architecture
+
+Modular structure with separation of concerns:
 
 ```
 src/modules/
-├── users/              # Model → Repository → Service → Controller
-├── organizations/      # Each module is self-contained
+├── users/
+├── organizations/
 ├── clients/
-├── projects/
-└── health/
-
-database/
-├── migrations/         # Sequelize migrations
-└── seeders/           # Test data
+└── projects/
 ```
 
-## Commands
+Each module has: Model, DTO, Interface, Validation, Repository, Service, Controller
+
+## Authentication
+
+### Register
 
 ```bash
-# Development
-npm run dev              # Start server
-npm test                 # Run tests
-
-# Database
-npm run migrate          # Run migrations
-npm run seed             # Seed test data
-make db-reset           # Reset database
-
-# Production
-npm run build           # Build TypeScript
-npm start               # Start server
+POST /api/v1/auth/register
+{
+  "email": "user@example.com",
+  "password": "securepass",
+  "firstName": "John",
+  "lastName": "Doe"
+}
 ```
+
+### Login
+
+```bash
+POST /api/v1/auth/login
+{
+  "email": "user@example.com",
+  "password": "securepass"
+}
+```
+
+Returns JWT token.
 
 ## API Endpoints
 
-### Authentication
-```
-POST /api/v1/auth/register
-POST /api/v1/auth/login
-GET  /api/v1/auth/me
-```
+All protected endpoints require:
+- `Authorization: Bearer <token>` header
+- `x-organization-id: <uuid>` header (for org-scoped resources)
 
 ### Organizations
-```
-POST /api/v1/organizations
-GET  /api/v1/organizations
-GET  /api/v1/organizations/:id/members
-POST /api/v1/organizations/:id/members
-```
 
-### Clients (requires auth + org header)
 ```
-POST   /api/v1/clients
-GET    /api/v1/clients
-GET    /api/v1/clients/:id
-PUT    /api/v1/clients/:id
-DELETE /api/v1/clients/:id
+GET    /organizations          List user's organizations
+POST   /organizations          Create organization
+GET    /organizations/:id      Get organization details
+POST   /organizations/:id/members  Add member
 ```
 
-### Projects (requires auth + org header)
+### Clients
+
 ```
-POST   /api/v1/projects
-GET    /api/v1/projects
-GET    /api/v1/projects/:id
-PUT    /api/v1/projects/:id
-DELETE /api/v1/projects/:id
-```
-
-## Required Headers
-
-```bash
-# All protected endpoints
-Authorization: Bearer <jwt-token>
-
-# Organization-scoped endpoints
-x-organization-id: <organization-uuid>
+GET    /clients               List clients (paginated)
+POST   /clients               Create client
+GET    /clients/:id           Get client
+PUT    /clients/:id           Update client
+DELETE /clients/:id           Delete client
 ```
 
-## Test Users
+### Projects
 
-Password: `Password123!` for all
+```
+GET    /projects              List projects (paginated)
+POST   /projects              Create project
+GET    /projects/:id          Get project
+PUT    /projects/:id          Update project
+DELETE /projects/:id          Delete project
+```
 
-- `john@acme.com` - Acme Corp Owner
-- `jane@acme.com` - Acme Corp Admin
-- `bob@techstartup.com` - Tech Startup Owner
-
-## Key Features
-
-### Data Integrity
-- ✅ Foreign keys with CASCADE/SET NULL
-- ✅ Unique project names per organization
-- ✅ Database transactions for atomic operations
-- ✅ Referential integrity enforced
-
-### Performance
-- ✅ Pagination (default: 20/page, max: 100)
-- ✅ Database indexes on all foreign keys
-- ✅ N+1 query prevention with eager loading
-- ✅ Connection pooling (max 20)
-
-### Security
-- ✅ JWT + role-based authorization
-- ✅ Input validation (never trust client)
-- ✅ Safe error messages (no leaks)
-- ✅ Privilege escalation prevention
-
-### RBAC
+## Permissions
 
 | Action | Owner | Admin | Member |
-|--------|:-----:|:-----:|:------:|
-| Create project | ✅ | ✅ | ❌ |
-| View projects | ✅ | ✅ | ✅ |
-| Update project | ✅ | ✅ | ❌ |
-| Delete project | ✅ | ❌ | ❌ |
+|--------|-------|-------|--------|
+| **Projects** |
+| Create | Yes | Yes | No |
+| View | Yes | Yes | Yes |
+| Update | Yes | Yes | No |
+| Delete | Yes | No | No |
+| **Clients** |
+| Create | Yes | Yes | No |
+| View | Yes | Yes | Yes |
+| Update | Yes | Yes | No |
+| Delete | Yes | Yes | No |
+
+## Pagination
+
+List endpoints support pagination:
+
+```bash
+GET /projects?page=1&limit=20
+```
+
+Response includes `meta` object:
+
+```json
+{
+  "data": [...],
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "total": 45,
+    "totalPages": 3,
+    "hasNextPage": true,
+    "hasPrevPage": false
+  }
+}
+```
+
+Default: 20 items per page, max: 100
 
 ## Example Usage
 
 ```bash
-# 1. Login
+# Login
 TOKEN=$(curl -s -X POST http://localhost:3000/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"john@acme.com","password":"Password123!"}' \
   | jq -r '.data.token')
 
-# 2. Get organizations
+# Get organizations
 ORG_ID=$(curl -s http://localhost:3000/api/v1/organizations \
   -H "Authorization: Bearer $TOKEN" \
   | jq -r '.data[0].id')
 
-# 3. Create project
+# Create project
 curl -X POST http://localhost:3000/api/v1/projects \
   -H "Authorization: Bearer $TOKEN" \
   -H "x-organization-id: $ORG_ID" \
   -H "Content-Type: application/json" \
-  -d '{"name":"New Project","status":"active"}'
+  -d '{
+    "name": "Website Redesign",
+    "description": "Complete overhaul",
+    "status": "active"
+  }'
 
-# 4. List projects (paginated)
+# List projects
 curl "http://localhost:3000/api/v1/projects?page=1&limit=10" \
   -H "Authorization: Bearer $TOKEN" \
   -H "x-organization-id: $ORG_ID"
 ```
 
-### Pagination
-
-All list endpoints support pagination:
-
-```bash
-# Default: page=1, limit=20
-GET /api/v1/projects
-
-# Custom pagination
-GET /api/v1/projects?page=2&limit=10
-
-# Response includes meta
-{
-  "success": true,
-  "data": [...],
-  "meta": {
-    "page": 2,
-    "limit": 10,
-    "total": 45,
-    "totalPages": 5,
-    "hasNextPage": true,
-    "hasPrevPage": true
-  }
-}
-```
-
 ## Configuration
 
-Create `.env` from `.env.example`:
+Copy `.env.example` to `.env` and configure:
 
 ```bash
 cp .env.example .env
@@ -210,58 +181,84 @@ Key variables:
 - `JWT_SECRET` - Token signing secret
 - `PORT` - Server port (default: 3000)
 
-## Modular Architecture
+## Database
 
-Each module follows: **Model → Repository → Service → Controller**
+Uses PostgreSQL with Sequelize ORM.
 
-```typescript
-// Example: projects module
-project.model.ts       // Sequelize model (DB schema)
-project.repository.ts  // Database queries
-project.service.ts     // Business logic
-project.controller.ts  // Routes + handlers
+### Migrations
+
+```bash
+make db-migrate      # Run migrations
+make db-seed         # Seed data
+make db-reset        # Reset database
 ```
 
-See [MODULAR_ARCHITECTURE.md](./MODULAR_ARCHITECTURE.md) for details.
+### Schema
 
-## Assessment Compliance
+- `users` - User accounts
+- `organizations` - Tenant organizations
+- `organization_users` - User-organization membership with roles
+- `clients` - Client records per organization
+- `projects` - Projects per organization with optional client link
 
-### Data Integrity ✅
-- [x] Foreign keys with CASCADE/SET NULL
-- [x] Unique project names per organization
-- [x] Database transactions (organization creation)
-- [x] Referential integrity at database level
+## Development
 
-### Performance ✅
-- [x] N+1 prevention (eager loading)
-- [x] Indexes on org_id and foreign keys
-- [x] Pagination (default: 20, max: 100)
-- [x] Efficient responses (minimal fields)
+```bash
+make dev         # Start dev server with nodemon
+make build       # Build for production
+make typecheck   # Type checking
+make lint        # Run ESLint
+make format      # Format with Prettier
+make test        # Run tests
+```
 
-### Security ✅
-- [x] Input validation (Joi on all endpoints)
-- [x] Backend authorization (JWT + org + role)
-- [x] Privilege escalation prevented
-- [x] Safe error messages (no leaks)
-- [x] JWT + role checks required
+See `make help` for all commands.
 
-### Error Handling ✅
-- [x] Invalid input handled (400)
-- [x] Missing resources handled (404)
-- [x] Proper HTTP codes (200, 201, 400, 401, 403, 404, 409, 500)
-- [x] No internal details leaked
+## Testing
 
-**Evidence:** [ASSESSMENT_VERIFICATION.md](ASSESSMENT_VERIFICATION.md) | [ASSESSMENT_EVIDENCE.md](ASSESSMENT_EVIDENCE.md)
+Run test suite:
 
-## 📚 Documentation (11 files, 3,500+ lines)
+```bash
+make test
+```
 
-**For Getting Started:**
-1. **[START_HERE.md](START_HERE.md)** - Quick start guide
-2. **[OVERVIEW.md](OVERVIEW.md)** - System overview
-3. **[README.md](README.md)** - This file (complete API docs)
+Integration tests cover RBAC scenarios.
 
-**For API Testing:**
-4. **[API_EXAMPLES.md](API_EXAMPLES.md)** - Copy-paste curl commands
+## Implementation Notes
+
+### Data Integrity
+
+- Foreign keys enforce referential integrity
+- Unique constraint on project names within organizations
+- Transactions for atomic operations (e.g., organization creation)
+
+### Performance
+
+- Database indexes on foreign keys and frequently queried columns
+- Eager loading to prevent N+1 queries
+- Pagination on list endpoints
+
+### Security
+
+- Input validation with Joi on all endpoints
+- Three-layer authorization: JWT + org membership + role checks
+- Rate limiting (100 requests per 15 minutes)
+- Safe error messages (no internal details leaked)
+- Bcrypt password hashing
+
+### Error Handling
+
+- Appropriate HTTP status codes
+- Validation errors return 400
+- Authentication failures return 401
+- Authorization failures return 403
+- Missing resources return 404
+- Duplicate resources return 409
+
+## Documentation
+
+- See API_EXAMPLES.md for more curl examples
+- See CHANGELOG.md for recent changes
 
 ## License
 

@@ -1,7 +1,7 @@
 {
   "name": "multi-tenant-saas-api",
   "version": "1.0.0",
-  "description": "Enterprise Multi-Tenant SaaS API built with Express and TypeScript",
+  "description": "Multi-tenant REST API with Express and TypeScript",
   "main": "dist/server.js",
   "scripts": {
     "dev": "nodemon",

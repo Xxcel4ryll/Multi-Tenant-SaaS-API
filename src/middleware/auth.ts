@@ -50,7 +50,6 @@ export const requireOrganization = async (
       throw new AppError('User not authenticated', StatusCodes.UNAUTHORIZED);
     }
 
-    // Verify user belongs to organization and get their role
     const membership = await OrganizationUser.findOne({
       where: {
         organization_id: organizationId,

@@ -1,12 +1,7 @@
-/**
- * Sequelize Database Connection
- */
-
 import { Sequelize } from 'sequelize';
 import config from '../config';
 import logger from '../utils/logger';
 
-// Create Sequelize instance
 const sequelize = new Sequelize({
   dialect: 'postgres',
   host: config.database.host,
@@ -29,23 +24,17 @@ const sequelize = new Sequelize({
   },
 });
 
-/**
- * Test database connection
- */
 export const testConnection = async (): Promise<boolean> => {
   try {
     await sequelize.authenticate();
-    logger.info('✅ Database connection established successfully');
+    logger.info('Database connection established');
     return true;
   } catch (error) {
-    logger.error('❌ Unable to connect to database:', error);
+    logger.error('Unable to connect to database:', error);
     return false;
   }
 };
 
-/**
- * Close database connection
- */
 export const closeConnection = async (): Promise<void> => {
   try {
     await sequelize.close();

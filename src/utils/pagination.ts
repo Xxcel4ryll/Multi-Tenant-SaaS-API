@@ -29,7 +29,6 @@ export function getPaginationParams(query: PaginationParams): {
   const page = Math.max(1, Number(query.page) || DEFAULT_PAGE);
   let limit = Number(query.limit) || DEFAULT_LIMIT;
 
-  // Enforce max limit
   limit = Math.min(limit, MAX_LIMIT);
 
   const offset = (page - 1) * limit;

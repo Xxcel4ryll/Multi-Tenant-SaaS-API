@@ -7,18 +7,18 @@
 
 help:
 	@echo ""
-	@echo "ğŸš€ Multi-Tenant SaaS API - Makefile Commands"
+	@echo " Multi-Tenant SaaS API - Makefile Commands"
 	@echo ""
-	@echo "ğŸ“¦ Setup & Installation:"
+	@echo " Setup & Installation:"
 	@echo "  make install         Install dependencies"
 	@echo "  make setup           Complete setup (install + db + migrate + seed)"
 	@echo ""
-	@echo "ğŸ”§ Development:"
+	@echo " Development:"
 	@echo "  make dev             Start development server with hot reload"
 	@echo "  make build           Build production bundle"
 	@echo "  make start           Start production server"
 	@echo ""
-	@echo "âœ… Testing & Validation:"
+	@echo " Testing & Validation:"
 	@echo "  make test            Run tests with coverage"
 	@echo "  make test-watch      Run tests in watch mode"
 	@echo "  make typecheck       TypeScript type checking"
@@ -29,7 +29,7 @@ help:
 	@echo "  make validate        Run all checks (typecheck + lint + format-check)"
 	@echo "  make check           Full validation + tests"
 	@echo ""
-	@echo "ğŸ—„ï¸  Database:"
+	@echo "  Database:"
 	@echo "  make db-up           Start PostgreSQL with Docker"
 	@echo "  make db-down         Stop PostgreSQL"
 	@echo "  make db-status       Check database status"
@@ -37,10 +37,10 @@ help:
 	@echo "  make db-migrate-undo Undo last migration"
 	@echo "  make db-seed         Seed database with test data"
 	@echo "  make db-seed-undo    Undo all seeds"
-	@echo "  make db-reset        Reset database (âš ï¸  deletes all data)"
+	@echo "  make db-reset        Reset database (   deletes all data)"
 	@echo "  make db-logs         Show PostgreSQL logs"
 	@echo ""
-	@echo "ğŸ§¹ Cleanup:"
+	@echo " Cleanup:"
 	@echo "  make clean           Clean build artifacts"
 	@echo "  make logs-clean      Clean log files"
 	@echo ""
@@ -50,40 +50,40 @@ help:
 # ============================================================================
 
 install:
-	@echo "ğŸ“¦ Installing dependencies..."
+	@echo " Installing dependencies..."
 	npm install
-	@echo "âœ… Dependencies installed!"
+	@echo " Dependencies installed!"
 
 setup:
-	@echo "ğŸš€ Running complete setup..."
+	@echo " Running complete setup..."
 	@echo ""
-	@echo "1ï¸âƒ£  Installing dependencies..."
+	@echo "1ƒ£  Installing dependencies..."
 	npm install
 	@echo ""
-	@echo "2ï¸âƒ£  Starting PostgreSQL..."
+	@echo "2ƒ£  Starting PostgreSQL..."
 	docker-compose up -d
 	@echo ""
-	@echo "3ï¸âƒ£  Waiting for PostgreSQL to be ready..."
-	@echo "â³ This may take 10-15 seconds for first-time setup..."
+	@echo "3ƒ£  Waiting for PostgreSQL to be ready..."
+	@echo "³ This may take 10-15 seconds for first-time setup..."
 	@sleep 3
 	@until docker-compose exec -T postgres pg_isready -U postgres > /dev/null 2>&1; do \
-		echo "â³ Waiting for PostgreSQL..."; \
+		echo "³ Waiting for PostgreSQL..."; \
 		sleep 2; \
 	done
-	@echo "âœ… PostgreSQL is ready!"
+	@echo " PostgreSQL is ready!"
 	@echo ""
-	@echo "4ï¸âƒ£  Running migrations..."
+	@echo "4ƒ£  Running migrations..."
 	npm run migrate
 	@echo ""
-	@echo "5ï¸âƒ£  Seeding database..."
+	@echo "5ƒ£  Seeding database..."
 	npm run seed
 	@echo ""
-	@echo "âœ… Setup complete!"
+	@echo " Setup complete!"
 	@echo ""
 	@echo "Next steps:"
-	@echo "  â€¢ Run 'make dev' to start the development server"
-	@echo "  â€¢ Check OVERVIEW.md for system documentation"
-	@echo "  â€¢ Check API_QUICK_REFERENCE.md for API endpoints"
+	@echo "  ¢ Run 'make dev' to start the development server"
+	@echo "  ¢ Check OVERVIEW.md for system documentation"
+	@echo "  ¢ Check API_QUICK_REFERENCE.md for API endpoints"
 	@echo ""
 
 # ============================================================================
@@ -91,16 +91,16 @@ setup:
 # ============================================================================
 
 dev:
-	@echo "ğŸ”§ Starting development server..."
+	@echo " Starting development server..."
 	npm run dev
 
 build:
-	@echo "ğŸ“¦ Building production bundle..."
+	@echo " Building production bundle..."
 	npm run build
-	@echo "âœ… Build complete! Output in dist/"
+	@echo " Build complete! Output in dist/"
 
 start:
-	@echo "ğŸš€ Starting production server..."
+	@echo " Starting production server..."
 	npm start
 
 # ============================================================================
@@ -108,132 +108,132 @@ start:
 # ============================================================================
 
 test:
-	@echo "ğŸ§ª Running tests with coverage..."
+	@echo "ª Running tests with coverage..."
 	npm test
 
 test-watch:
-	@echo "ğŸ‘€ Running tests in watch mode..."
+	@echo "‘ Running tests in watch mode..."
 	npm run test:watch
 
 typecheck:
-	@echo "ğŸ” Type checking TypeScript..."
+	@echo " Type checking TypeScript..."
 	npm run typecheck
 
 lint:
-	@echo "ğŸ” Linting code..."
+	@echo " Linting code..."
 	npm run lint
 
 lint-fix:
-	@echo "ğŸ”§ Linting and fixing code..."
+	@echo " Linting and fixing code..."
 	npm run lint:fix
 
 format:
-	@echo "âœ¨ Formatting code..."
+	@echo "¨ Formatting code..."
 	npm run format
-	@echo "âœ… Code formatted!"
+	@echo " Code formatted!"
 
 format-check:
-	@echo "ğŸ” Checking code formatting..."
+	@echo " Checking code formatting..."
 	npm run format:check
 
 validate:
-	@echo "ğŸ” Running all validations..."
+	@echo " Running all validations..."
 	@echo ""
-	@echo "1ï¸âƒ£  Type checking..."
+	@echo "1ƒ£  Type checking..."
 	@make typecheck
 	@echo ""
-	@echo "2ï¸âƒ£  Linting..."
+	@echo "2ƒ£  Linting..."
 	@make lint
 	@echo ""
-	@echo "3ï¸âƒ£  Format checking..."
+	@echo "3ƒ£  Format checking..."
 	@make format-check
 	@echo ""
-	@echo "âœ… All validations passed!"
+	@echo " All validations passed!"
 
 check: validate test
 	@echo ""
-	@echo "âœ… Full check complete (validations + tests passed)!"
+	@echo " Full check complete (validations + tests passed)!"
 
 # ============================================================================
 # Cleanup
 # ============================================================================
 
 clean:
-	@echo "ğŸ§¹ Cleaning build artifacts..."
+	@echo " Cleaning build artifacts..."
 	rm -rf dist coverage node_modules/.cache
-	@echo "âœ… Clean complete!"
+	@echo " Clean complete!"
 
 logs-clean:
-	@echo "ğŸ§¹ Cleaning log files..."
+	@echo " Cleaning log files..."
 	rm -f logs/*.log
-	@echo "âœ… Logs cleaned!"
+	@echo " Logs cleaned!"
 
 # ============================================================================
 # Database
 # ============================================================================
 
 db-up:
-	@echo "ğŸ—„ï¸  Starting PostgreSQL..."
+	@echo "  Starting PostgreSQL..."
 	docker-compose up -d
-	@echo "â³ Waiting for database to be ready..."
+	@echo "³ Waiting for database to be ready..."
 	@sleep 2
 	@until docker-compose exec -T postgres pg_isready -U postgres > /dev/null 2>&1; do \
-		echo "â³ Still waiting..."; \
+		echo "³ Still waiting..."; \
 		sleep 2; \
 	done
-	@echo "âœ… Database is ready!"
+	@echo " Database is ready!"
 
 db-down:
-	@echo "ğŸ›‘ Stopping PostgreSQL..."
+	@echo "›‘ Stopping PostgreSQL..."
 	docker-compose down
-	@echo "âœ… Database stopped!"
+	@echo " Database stopped!"
 
 db-status:
-	@echo "ğŸ“Š Database status:"
+	@echo "Š Database status:"
 	@docker-compose ps
 	@echo ""
-	@echo "ğŸ“Š Container logs (last 10 lines):"
+	@echo "Š Container logs (last 10 lines):"
 	@docker-compose logs --tail=10 postgres
 
 db-migrate:
-	@echo "ğŸ“Š Running migrations..."
+	@echo "Š Running migrations..."
 	npm run migrate
-	@echo "âœ… Migrations complete!"
+	@echo " Migrations complete!"
 
 db-migrate-undo:
-	@echo "â®ï¸  Undoing last migration..."
+	@echo "®  Undoing last migration..."
 	npm run migrate:undo
-	@echo "âœ… Migration undone!"
+	@echo " Migration undone!"
 
 db-seed:
-	@echo "ğŸŒ± Seeding database..."
+	@echo "Œ± Seeding database..."
 	npm run seed
-	@echo "âœ… Database seeded!"
+	@echo " Database seeded!"
 
 db-seed-undo:
-	@echo "ğŸ—‘ï¸  Removing seed data..."
+	@echo "‘  Removing seed data..."
 	npm run seed:undo
-	@echo "âœ… Seed data removed!"
+	@echo " Seed data removed!"
 
 db-reset:
-	@echo "âš ï¸  WARNING: This will delete all data!"
-	@echo "ğŸ—‘ï¸  Stopping and removing database..."
+	@echo "   WARNING: This will delete all data!"
+	@echo "‘  Stopping and removing database..."
 	docker-compose down -v
-	@echo "ğŸ—„ï¸  Starting fresh database..."
+	@echo "  Starting fresh database..."
 	docker-compose up -d
-	@echo "â³ Waiting for PostgreSQL to be ready..."
+	@echo "³ Waiting for PostgreSQL to be ready..."
 	@sleep 2
 	@until docker-compose exec -T postgres pg_isready -U postgres > /dev/null 2>&1; do \
-		echo "â³ Still waiting..."; \
+		echo "³ Still waiting..."; \
 		sleep 2; \
 	done
-	@echo "âœ… PostgreSQL is ready!"
-	@echo "ğŸ“Š Running migrations..."
+	@echo " PostgreSQL is ready!"
+	@echo "Š Running migrations..."
 	npm run migrate
-	@echo "ğŸŒ± Seeding database..."
+	@echo "Œ± Seeding database..."
 	npm run seed
-	@echo "âœ… Database reset complete!"
+	@echo " Database reset complete!"
 
 db-logs:
-	@echo "ğŸ“‹ PostgreSQL logs (press Ctrl+C to exit):"
+	@echo "‹ PostgreSQL logs (press Ctrl+C to exit):"
 	docker-compose logs -f postgres
