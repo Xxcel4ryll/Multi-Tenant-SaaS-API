@@ -1,7 +1,3 @@
-/**
- * Project Validation Schemas
- */
-
 import Joi from 'joi';
 
 export const projectValidation = {

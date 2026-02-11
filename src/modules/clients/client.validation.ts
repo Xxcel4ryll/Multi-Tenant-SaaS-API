@@ -1,7 +1,3 @@
-/**
- * Client Validation Schemas
- */
-
 import Joi from 'joi';
 
 export const clientValidation = {

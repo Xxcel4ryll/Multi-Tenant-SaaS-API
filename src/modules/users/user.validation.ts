@@ -1,8 +1,3 @@
-/**
- * User Validation Schemas
- * Joi schemas for validating user-related requests
- */
-
 import Joi from 'joi';
 
 export const userValidation = {

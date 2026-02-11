@@ -1,7 +1,3 @@
-/**
- * Organization Validation Schemas
- */
-
 import Joi from 'joi';
 
 export const organizationValidation = {
