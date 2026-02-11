@@ -1,0 +1,96 @@
+import User from './users/user.model';
+import Organization from './organizations/organization.model';
+import OrganizationUser from './organizations/organization-user.model';
+import Client from './clients/client.model';
+import Project from './projects/project.model';
+
+// Define all model associations
+export const initializeAssociations = (): void => {
+  // User <-> Organization (through OrganizationUser)
+  User.belongsToMany(Organization, {
+    through: OrganizationUser,
+    foreignKey: 'user_id',
+    otherKey: 'organization_id',
+    as: 'organizations',
+  });
+
+  Organization.belongsToMany(User, {
+    through: OrganizationUser,
+    foreignKey: 'organization_id',
+    otherKey: 'user_id',
+    as: 'users',
+  });
+
+  // OrganizationUser associations
+  OrganizationUser.belongsTo(User, {
+    foreignKey: 'user_id',
+    as: 'user',
+  });
+
+  OrganizationUser.belongsTo(Organization, {
+    foreignKey: 'organization_id',
+    as: 'organization',
+  });
+
+  Organization.hasMany(OrganizationUser, {
+    foreignKey: 'organization_id',
+    as: 'organization_users',
+  });
+
+  // Organization -> Clients
+  Organization.hasMany(Client, {
+    foreignKey: 'organization_id',
+    as: 'clients',
+  });
+
+  Client.belongsTo(Organization, {
+    foreignKey: 'organization_id',
+    as: 'organization',
+  });
+
+  // Organization -> Projects
+  Organization.hasMany(Project, {
+    foreignKey: 'organization_id',
+    as: 'projects',
+  });
+
+  Project.belongsTo(Organization, {
+    foreignKey: 'organization_id',
+    as: 'organization',
+  });
+
+  // Client -> Projects
+  Client.hasMany(Project, {
+    foreignKey: 'client_id',
+    as: 'projects',
+  });
+
+  Project.belongsTo(Client, {
+    foreignKey: 'client_id',
+    as: 'client',
+  });
+
+  // User -> Created Clients
+  User.hasMany(Client, {
+    foreignKey: 'created_by',
+    as: 'created_clients',
+  });
+
+  Client.belongsTo(User, {
+    foreignKey: 'created_by',
+    as: 'creator',
+  });
+
+  // User -> Created Projects
+  User.hasMany(Project, {
+    foreignKey: 'created_by',
+    as: 'created_projects',
+  });
+
+  Project.belongsTo(User, {
+    foreignKey: 'created_by',
+    as: 'creator',
+  });
+};
+
+export { User, Organization, OrganizationUser, Client, Project };
