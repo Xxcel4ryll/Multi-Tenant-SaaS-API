@@ -1,80 +1,72 @@
-# API Examples
+# API Examples - Copy & Paste
 
-Complete examples for testing the Multi-Tenant Project Management API.
-
-## Setup
-
-1. Start the server:
-```bash
-docker-compose up -d
-npm run dev
-```
-
-2. Set environment variables for easier testing:
+## Setup Environment
 
 ```bash
-export API_URL="http://localhost:3000/api/v1"
-export TOKEN="your-token-here"
-export ORG_ID="your-org-id-here"
+# Start the API
+make setup
+make dev
+
+# API runs at: http://localhost:3000/api/v1
 ```
+
+---
 
 ## Authentication
 
-### Register New User
+### Register User
 
 ```bash
-curl -X POST $API_URL/auth/register \
+curl -X POST http://localhost:3000/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "newuser@example.com",
     "password": "SecurePass123!",
-    "first_name": "Jane",
-    "last_name": "Doe"
+    "firstName": "New",
+    "lastName": "User"
   }'
-```
-
-Response:
-```json
-{
-  "success": true,
-  "message": "User registered successfully",
-  "data": {
-    "user": {
-      "id": "uuid",
-      "email": "newuser@example.com",
-      "first_name": "Jane",
-      "last_name": "Doe"
-    },
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-  }
-}
 ```
 
 ### Login
 
 ```bash
-curl -X POST $API_URL/auth/login \
+# Save token to environment variable
+TOKEN=$(curl -s -X POST http://localhost:3000/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "john@acme.com",
     "password": "Password123!"
-  }'
+  }' | jq -r '.data.token')
+
+echo "Token: $TOKEN"
 ```
 
-### Get Current User
+---
+
+## Organizations
+
+### List My Organizations
 
 ```bash
-curl $API_URL/auth/me \
+curl http://localhost:3000/api/v1/organizations \
   -H "Authorization: Bearer $TOKEN"
 ```
 
-## Organizations
+### Get Organization ID
+
+```bash
+# Save first organization ID
+ORG_ID=$(curl -s http://localhost:3000/api/v1/organizations \
+  -H "Authorization: Bearer $TOKEN" \
+  | jq -r '.data[0].id')
+
+echo "Organization ID: $ORG_ID"
+```
 
 ### Create Organization
 
 ```bash
-curl -X POST $API_URL/organizations \
+curl -X POST http://localhost:3000/api/v1/organizations \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -83,88 +75,57 @@ curl -X POST $API_URL/organizations \
   }'
 ```
 
-Response:
-```json
-{
-  "success": true,
-  "message": "Organization created successfully",
-  "data": {
-    "id": "550e8400-e29b-41d4-a716-446655440000",
-    "name": "My New Company",
-    "slug": "my-new-company",
-    "created_at": "2024-01-15T10:30:00.000Z",
-    "updated_at": "2024-01-15T10:30:00.000Z"
-  }
-}
-```
-
-### Get My Organizations
-
-```bash
-curl $API_URL/organizations \
-  -H "Authorization: Bearer $TOKEN"
-```
-
-### Get Single Organization
-
-```bash
-curl $API_URL/organizations/550e8400-e29b-41d4-a716-446655440001 \
-  -H "Authorization: Bearer $TOKEN"
-```
-
-### Get Organization Members
-
-```bash
-curl $API_URL/organizations/550e8400-e29b-41d4-a716-446655440001/members \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "x-organization-id: 550e8400-e29b-41d4-a716-446655440001"
-```
-
 ### Add Member to Organization
 
 ```bash
-curl -X POST $API_URL/organizations/550e8400-e29b-41d4-a716-446655440001/members \
+curl -X POST http://localhost:3000/api/v1/organizations/$ORG_ID/members \
   -H "Authorization: Bearer $TOKEN" \
-  -H "x-organization-id: 550e8400-e29b-41d4-a716-446655440001" \
   -H "Content-Type: application/json" \
   -d '{
-    "user_id": "650e8400-e29b-41d4-a716-446655440002",
-    "role": "admin"
+    "email": "newmember@example.com",
+    "role": "member"
   }'
 ```
 
+---
+
 ## Clients
 
-All client endpoints require both `Authorization` and `x-organization-id` headers.
+### List Clients (Paginated)
+
+```bash
+# Default: 20 per page
+curl "http://localhost:3000/api/v1/clients" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "x-organization-id: $ORG_ID"
+
+# Custom pagination
+curl "http://localhost:3000/api/v1/clients?page=1&limit=10" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "x-organization-id: $ORG_ID"
+```
 
 ### Create Client
 
 ```bash
-curl -X POST $API_URL/clients \
+curl -X POST http://localhost:3000/api/v1/clients \
   -H "Authorization: Bearer $TOKEN" \
   -H "x-organization-id: $ORG_ID" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Acme Corporation",
     "email": "contact@acme.com",
-    "phone": "+1-555-123-4567",
+    "phone": "+1-555-0123",
     "company": "Acme Corp",
-    "notes": "Important client - VIP treatment"
+    "address": "123 Main St, City, State 12345"
   }'
 ```
 
-### Get All Clients
+### Get Client by ID
 
 ```bash
-curl $API_URL/clients \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "x-organization-id: $ORG_ID"
-```
-
-### Get Single Client
-
-```bash
-curl $API_URL/clients/client-uuid-here \
+CLIENT_ID="<uuid>"
+curl http://localhost:3000/api/v1/clients/$CLIENT_ID \
   -H "Authorization: Bearer $TOKEN" \
   -H "x-organization-id: $ORG_ID"
 ```
@@ -172,74 +133,64 @@ curl $API_URL/clients/client-uuid-here \
 ### Update Client
 
 ```bash
-curl -X PUT $API_URL/clients/client-uuid-here \
+curl -X PUT http://localhost:3000/api/v1/clients/$CLIENT_ID \
   -H "Authorization: Bearer $TOKEN" \
   -H "x-organization-id: $ORG_ID" \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "newemail@acme.com",
-    "phone": "+1-555-999-8888",
-    "notes": "Updated contact information"
+    "name": "Acme Corporation Updated",
+    "phone": "+1-555-9999"
   }'
 ```
 
 ### Delete Client
 
 ```bash
-curl -X DELETE $API_URL/clients/client-uuid-here \
+curl -X DELETE http://localhost:3000/api/v1/clients/$CLIENT_ID \
   -H "Authorization: Bearer $TOKEN" \
   -H "x-organization-id: $ORG_ID"
 ```
 
+---
+
 ## Projects
 
-All project endpoints require both `Authorization` and `x-organization-id` headers.
+### List Projects (Paginated)
+
+```bash
+# Default: 20 per page
+curl "http://localhost:3000/api/v1/projects" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "x-organization-id: $ORG_ID"
+
+# With filters
+curl "http://localhost:3000/api/v1/projects?status=active&page=1&limit=5" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "x-organization-id: $ORG_ID"
+```
 
 ### Create Project
 
 ```bash
-curl -X POST $API_URL/projects \
+curl -X POST http://localhost:3000/api/v1/projects \
   -H "Authorization: Bearer $TOKEN" \
   -H "x-organization-id: $ORG_ID" \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "Website Redesign 2024",
-    "description": "Complete overhaul of company website with modern design",
-    "client_id": "client-uuid-here",
-    "status": "planning",
-    "start_date": "2024-02-01",
-    "end_date": "2024-06-30"
+    "name": "Website Redesign",
+    "description": "Complete overhaul of company website",
+    "status": "active",
+    "startDate": "2026-02-15",
+    "endDate": "2026-06-30",
+    "clientId": "'$CLIENT_ID'"
   }'
 ```
 
-### Get All Projects
+### Get Project by ID
 
 ```bash
-curl $API_URL/projects \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "x-organization-id: $ORG_ID"
-```
-
-### Get Projects by Status
-
-```bash
-curl "$API_URL/projects?status=active" \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "x-organization-id: $ORG_ID"
-```
-
-### Get Projects by Client
-
-```bash
-curl "$API_URL/projects?client_id=client-uuid-here" \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "x-organization-id: $ORG_ID"
-```
-
-### Get Single Project
-
-```bash
-curl $API_URL/projects/project-uuid-here \
+PROJECT_ID="<uuid>"
+curl http://localhost:3000/api/v1/projects/$PROJECT_ID \
   -H "Authorization: Bearer $TOKEN" \
   -H "x-organization-id: $ORG_ID"
 ```
@@ -247,255 +198,260 @@ curl $API_URL/projects/project-uuid-here \
 ### Update Project
 
 ```bash
-curl -X PUT $API_URL/projects/project-uuid-here \
+curl -X PUT http://localhost:3000/api/v1/projects/$PROJECT_ID \
   -H "Authorization: Bearer $TOKEN" \
   -H "x-organization-id: $ORG_ID" \
   -H "Content-Type: application/json" \
   -d '{
-    "status": "active",
-    "start_date": "2024-02-15",
-    "description": "Updated project description"
+    "name": "Website Redesign - Phase 2",
+    "status": "on_hold"
   }'
 ```
 
-### Update Project Status
+### Delete Project (Owner Only)
 
 ```bash
-curl -X PUT $API_URL/projects/project-uuid-here \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "x-organization-id: $ORG_ID" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "status": "completed"
-  }'
-```
-
-### Delete Project
-
-```bash
-curl -X DELETE $API_URL/projects/project-uuid-here \
+curl -X DELETE http://localhost:3000/api/v1/projects/$PROJECT_ID \
   -H "Authorization: Bearer $TOKEN" \
   -H "x-organization-id: $ORG_ID"
 ```
 
-## Health Checks
+---
 
-### Health Check
+## Test Assessment Requirements
+
+### Test 1: Duplicate Project Name (409 Conflict)
 
 ```bash
-curl http://localhost:3000/health
+# Create project
+curl -X POST http://localhost:3000/api/v1/projects \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "x-organization-id: $ORG_ID" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Test Duplicate"}'
+
+# Try to create again (should fail)
+curl -X POST http://localhost:3000/api/v1/projects \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "x-organization-id: $ORG_ID" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Test Duplicate"}'
+
+# Expected: 409 Conflict
+# Message: "A resource with this name already exists in this organization"
 ```
 
-Response:
+### Test 2: Pagination
+
+```bash
+# Get page 1
+curl "http://localhost:3000/api/v1/projects?page=1&limit=5" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "x-organization-id: $ORG_ID" | jq '.meta'
+
+# Response includes:
+# {
+#   "page": 1,
+#   "limit": 5,
+#   "total": 10,
+#   "totalPages": 2,
+#   "hasNextPage": true,
+#   "hasPrevPage": false
+# }
+```
+
+### Test 3: Authorization - Member Cannot Create
+
+```bash
+# Login as member (Jane)
+MEMBER_TOKEN=$(curl -s -X POST http://localhost:3000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "jane@acme.com",
+    "password": "Password123!"
+  }' | jq -r '.data.token')
+
+# Try to create project (should fail)
+curl -X POST http://localhost:3000/api/v1/projects \
+  -H "Authorization: Bearer $MEMBER_TOKEN" \
+  -H "x-organization-id: $ORG_ID" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Test Project"}'
+
+# Expected: 403 Forbidden
+# Message: "Insufficient permissions for this action"
+```
+
+### Test 4: Invalid Input Validation
+
+```bash
+# Empty project name
+curl -X POST http://localhost:3000/api/v1/projects \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "x-organization-id: $ORG_ID" \
+  -H "Content-Type: application/json" \
+  -d '{"name": ""}'
+
+# Expected: 400 Bad Request
+# Validation error message
+
+# Invalid UUID
+curl -X POST http://localhost:3000/api/v1/projects \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "x-organization-id: $ORG_ID" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Test", "clientId": "not-a-uuid"}'
+
+# Expected: 400 Bad Request
+```
+
+### Test 5: Access Other Organization (403 Forbidden)
+
+```bash
+# Try to access with wrong org ID
+curl http://localhost:3000/api/v1/projects \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "x-organization-id: 00000000-0000-0000-0000-000000000000"
+
+# Expected: 403 Forbidden
+# Message: "User does not belong to this organization"
+```
+
+---
+
+## Complete Flow Example
+
+```bash
+#!/bin/bash
+
+# 1. Login
+echo "1. Logging in..."
+TOKEN=$(curl -s -X POST http://localhost:3000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"john@acme.com","password":"Password123!"}' \
+  | jq -r '.data.token')
+
+# 2. Get organization
+echo "2. Getting organization..."
+ORG_ID=$(curl -s http://localhost:3000/api/v1/organizations \
+  -H "Authorization: Bearer $TOKEN" \
+  | jq -r '.data[0].id')
+
+# 3. Create client
+echo "3. Creating client..."
+CLIENT_ID=$(curl -s -X POST http://localhost:3000/api/v1/clients \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "x-organization-id: $ORG_ID" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"New Client","email":"client@example.com"}' \
+  | jq -r '.data.id')
+
+# 4. Create project
+echo "4. Creating project..."
+PROJECT_ID=$(curl -s -X POST http://localhost:3000/api/v1/projects \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "x-organization-id: $ORG_ID" \
+  -H "Content-Type: application/json" \
+  -d "{\"name\":\"New Project\",\"clientId\":\"$CLIENT_ID\",\"status\":\"active\"}" \
+  | jq -r '.data.id')
+
+# 5. List projects
+echo "5. Listing projects..."
+curl -s "http://localhost:3000/api/v1/projects?page=1&limit=10" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "x-organization-id: $ORG_ID" \
+  | jq '.data[] | {id, name, status}'
+
+echo ""
+echo "✅ Complete flow executed successfully!"
+echo "Organization: $ORG_ID"
+echo "Client: $CLIENT_ID"
+echo "Project: $PROJECT_ID"
+```
+
+---
+
+## Response Examples
+
+### Success Response (201 Created)
+
 ```json
 {
   "success": true,
-  "message": "Server is healthy",
   "data": {
-    "uptime": 123.456,
-    "timestamp": "2024-01-15T10:30:00.000Z",
-    "environment": "development"
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "name": "Website Redesign",
+    "description": "Complete overhaul",
+    "status": "active",
+    "startDate": "2026-02-15",
+    "endDate": "2026-06-30",
+    "organizationId": "org-uuid",
+    "clientId": "client-uuid",
+    "createdBy": "user-uuid",
+    "createdAt": "2026-02-11T10:00:00.000Z",
+    "updatedAt": "2026-02-11T10:00:00.000Z",
+    "client": {
+      "id": "client-uuid",
+      "name": "Acme Corp"
+    },
+    "creator": {
+      "id": "user-uuid",
+      "firstName": "John",
+      "lastName": "Doe"
+    }
   }
 }
 ```
 
-### Readiness Check
+### Paginated Response
 
-```bash
-curl http://localhost:3000/ready
-```
-
-## Error Examples
-
-### Missing Authentication
-
-```bash
-curl $API_URL/organizations
-```
-
-Response (401):
 ```json
 {
-  "success": false,
-  "message": "No token provided"
+  "success": true,
+  "data": [
+    { "id": "...", "name": "Project 1" },
+    { "id": "...", "name": "Project 2" }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "total": 45,
+    "totalPages": 3,
+    "hasNextPage": true,
+    "hasPrevPage": false
+  }
 }
 ```
 
-### Missing Organization Header
+### Error Response (409 Conflict)
 
-```bash
-curl $API_URL/clients \
-  -H "Authorization: Bearer $TOKEN"
-```
-
-Response (400):
 ```json
 {
   "success": false,
-  "message": "Organization ID is required"
+  "message": "A resource with this name already exists in this organization"
 }
 ```
 
-### Unauthorized Organization Access
+### Error Response (403 Forbidden)
 
-```bash
-curl $API_URL/clients \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "x-organization-id: wrong-org-id"
-```
-
-Response (403):
 ```json
 {
   "success": false,
-  "message": "User does not belong to this organization"
+  "message": "Insufficient permissions for this action"
 }
 ```
 
-### Validation Error
-
-```bash
-curl -X POST $API_URL/clients \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "x-organization-id: $ORG_ID" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "A"
-  }'
-```
-
-Response (400):
-```json
-{
-  "success": false,
-  "message": "\"name\" length must be at least 2 characters long"
-}
-```
-
-### Resource Not Found
-
-```bash
-curl $API_URL/clients/nonexistent-uuid \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "x-organization-id: $ORG_ID"
-```
-
-Response (404):
-```json
-{
-  "success": false,
-  "message": "Client not found"
-}
-```
-
-## Complete Workflow Example
-
-Here's a complete workflow from registration to project creation:
-
-```bash
-# 1. Register a new user
-curl -X POST $API_URL/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "demo@example.com",
-    "password": "SecurePass123!",
-    "first_name": "Demo",
-    "last_name": "User"
-  }' | jq .
-
-# Save the token from response
-TOKEN="your-token-here"
-
-# 2. Create an organization
-curl -X POST $API_URL/organizations \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Demo Company",
-    "slug": "demo-company"
-  }' | jq .
-
-# Save the organization ID
-ORG_ID="your-org-id-here"
-
-# 3. Create a client
-curl -X POST $API_URL/clients \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "x-organization-id: $ORG_ID" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "First Client",
-    "email": "client@example.com",
-    "company": "Client Company"
-  }' | jq .
-
-# Save the client ID
-CLIENT_ID="your-client-id-here"
-
-# 4. Create a project
-curl -X POST $API_URL/projects \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "x-organization-id: $ORG_ID" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "First Project",
-    "description": "Our first project",
-    "client_id": "'$CLIENT_ID'",
-    "status": "planning"
-  }' | jq .
-
-# 5. List all projects
-curl $API_URL/projects \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "x-organization-id: $ORG_ID" | jq .
-```
-
-## Testing Multi-Tenancy
-
-Test that users can only access their organization's data:
-
-```bash
-# 1. Login as John (Acme Corp owner)
-curl -X POST $API_URL/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "john@acme.com",
-    "password": "Password123!"
-  }' | jq -r '.data.token'
-
-TOKEN_JOHN="token-here"
-ORG_ACME="550e8400-e29b-41d4-a716-446655440001"
-
-# 2. Login as Bob (Tech Startup owner)
-curl -X POST $API_URL/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "bob@techstartup.com",
-    "password": "Password123!"
-  }' | jq -r '.data.token'
-
-TOKEN_BOB="token-here"
-ORG_TECH="550e8400-e29b-41d4-a716-446655440002"
-
-# 3. Try to access Tech Startup's clients with John's token
-curl $API_URL/clients \
-  -H "Authorization: Bearer $TOKEN_JOHN" \
-  -H "x-organization-id: $ORG_TECH"
-
-# Should return 403 Forbidden
-
-# 4. Access Acme Corp's clients with John's token
-curl $API_URL/clients \
-  -H "Authorization: Bearer $TOKEN_JOHN" \
-  -H "x-organization-id: $ORG_ACME"
-
-# Should succeed
-```
+---
 
 ## Notes
 
-- All timestamps are in ISO 8601 format with timezone
-- All IDs are UUIDs
-- Date fields accept `YYYY-MM-DD` format
-- Use `jq` for pretty-printing JSON responses
-- Status codes: 200 (OK), 201 (Created), 400 (Bad Request), 401 (Unauthorized), 403 (Forbidden), 404 (Not Found), 500 (Server Error)
+- Replace `<uuid>` with actual UUIDs from responses
+- All list endpoints support pagination: `?page=1&limit=20`
+- Default pagination: 20 items per page, max 100
+- All protected routes require `Authorization: Bearer <token>`
+- All organization-scoped routes require `x-organization-id: <uuid>` header
+- Timestamps are in ISO 8601 format
+
+---
+
+**Tip:** Use `jq` for JSON formatting: `curl ... | jq`
