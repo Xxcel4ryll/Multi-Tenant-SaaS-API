@@ -80,24 +80,6 @@ COUNT(i.id) AS invoice_count  -- Count specific column, not COUNT(*)
 ```
 Using `COUNT(i.id)` correctly returns 0 for clients with no matches and handles NULLs properly in LEFT JOIN scenarios. More explicit than `COUNT(*)`.
 
-**Efficient Grouping**
-```sql
-GROUP BY c.id, c.full_name
-```
-Groups by primary key first (`c.id`) and includes non-aggregated columns to avoid implicit grouping issues.
-
-### Expected Output
-
-| client_id | client_name | invoice_count | total_invoiced_amount |
-|-----------|-------------|---------------|----------------------|
-| uuid-1    | Acme Corp   | 5             | 15000.00             |
-| uuid-2    | Beta Inc    | 0             | 0.00                 |
-| uuid-3    | Gamma LLC   | 12            | 48500.50             |
-
----
-
-## Index Strategy
-
 ### Essential Indexes
 
 ```sql
@@ -112,41 +94,6 @@ CREATE INDEX idx_clients_org_id ON clients(org_id);
 CREATE INDEX idx_invoices_client_id ON invoices(client_id);
 CREATE INDEX idx_invoices_org_id ON invoices(org_id);
 ```
-
-### Rationale
-
-The composite index `invoices(org_id, status, created_at)` covers all three filter conditions in the JOIN clause. Column order matters: `org_id` first provides tenant isolation and is the most selective filter, `status` second narrows to paid invoices, and `created_at` last enables efficient date range scanning. This eliminates full table scans on the invoices table.
-
-The `clients(org_id)` index enables fast filtering in the WHERE clause and is essential for multi-tenant query performance.
-
-Foreign key indexes support JOIN operations between clients and invoices while ensuring referential integrity checks remain fast. Most databases create these automatically with FK constraints, but verify they exist.
-
-In multi-tenant systems, always include `org_id` in composite indexes to leverage tenant-based filtering, which is typically the most selective condition.
-
-### Index Trade-offs
-
-These indexes provide 100x+ faster query execution on large datasets and are essential for multi-tenant performance at scale. The cost is 5-15% slower writes per index and additional storage (roughly 1-2x the table size for all indexes combined).
-
-### Performance Expectations
-
-| Dataset Size | Without Indexes | With Indexes | Index Used |
-|--------------|----------------|--------------|------------|
-| < 10K rows   | 50-200ms       | 5-20ms       | idx_invoices_org_status_date |
-| 100K rows    | 1-5 seconds    | 10-50ms      | idx_invoices_org_status_date |
-| 1M+ rows     | 10-60+ seconds | 20-100ms     | idx_invoices_org_status_date |
-| 10M+ rows    | Minutes/timeout | 100-500ms    | Requires partitioning |
-
-Times assume proper indexes and reasonable client counts per organization (< 10,000 clients).
-
-### Additional Considerations
-
-For large-scale deployments:
-- Add pagination with `LIMIT/OFFSET` for organizations with 10,000+ clients
-- Implement Redis caching for frequently accessed date ranges
-- Use prepared statements for query plan caching and SQL injection protection
-- Route reporting queries to read replicas to reduce primary database load
-
----
 
 ## Testing the Query
 
@@ -185,4 +132,4 @@ client-3   | Gamma LLC   | 1             | 5000.00
 
 ## Summary
 
-The composite index `invoices(org_id, status, created_at)` is critical for performance, providing 100x+ speedup on large datasets. Combined with proper tenant-safety filtering (org_id in both WHERE and JOIN), this query efficiently handles multi-tenant reporting requirements while maintaining data isolation and sub-100ms response times for typical workloads.
+The composite index `invoices(org_id, status, created_at)` is critical for performance, providing 100x+ speedup on large datasets. Combined with proper tenant-safety filtering (org_id in both WHERE and JOIN), this query efficiently handles multi-tenant reporting requirements.
